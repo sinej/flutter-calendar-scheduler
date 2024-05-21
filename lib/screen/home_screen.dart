@@ -1,6 +1,9 @@
+import 'package:calendar/component/t_calendar.dart';
+import 'package:calendar/component/today_banner.dart';
 import 'package:calendar/const/color.dart';
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:calendar/component/schedule_card.dart';
+import 'package:calendar/component/schedule_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,74 +13,63 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  DateTime? selectedDay;
+  DateTime selectedDay = DateTime.utc(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
 
   @override
   Widget build(BuildContext context) {
-    final defaultBoxDecoration = BoxDecoration(
-        borderRadius: BorderRadius.circular(6.0),
-        border: Border.all(
-          color: Colors.grey[200]! ,
-          width: 1.0,
-        ));
-
-    final defaultTextStyle = TextStyle(
-      color: Colors.grey[600],
-      fontWeight: FontWeight.w700,
-    );
-
     return Scaffold(
-      body: SafeArea(
-        child: TableCalendar(
-          locale: 'ko-KR',
-          focusedDay: DateTime.now(),
-          firstDay: DateTime(1800),
-          lastDay: DateTime(3000),
-          headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              titleTextStyle: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w700,
-              )),
-          calendarStyle: CalendarStyle(
-            isTodayHighlighted: true,
-            defaultDecoration: defaultBoxDecoration,
-            weekendDecoration: defaultBoxDecoration,
-            selectedDecoration: defaultBoxDecoration.copyWith(
-
-              border: Border.all(
-                color: primaryColor,
-                width: 1.0,
-              ),
-            ),
-            todayDecoration: defaultBoxDecoration.copyWith(
-              color: primaryColor,
-            ),
-            outsideDecoration: defaultBoxDecoration.copyWith(
-              border: Border.all(
-                color: Colors.transparent,
-              )
-            ),
-            defaultTextStyle: defaultTextStyle,
-            weekendTextStyle: defaultTextStyle,
-            selectedTextStyle: defaultTextStyle.copyWith(
-              color: primaryColor,
-            ),
-          ),
-          onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-            setState(() {
-              this.selectedDay = selectedDay;
-            });
-          },
-          selectedDayPredicate: (DateTime date) {
-            if (selectedDay == null) {
-              return false;
-            }
-            return date.isAtSameMomentAs(selectedDay!);
-          },
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (_) {
+              return ScheduleBottomSheet();
+            },
+          );
+        },
+        backgroundColor: primaryColor,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
         ),
       ),
+      body: SafeArea(
+          child: Column(children: [
+        TCalendar(
+          focusedDay: DateTime(2024, 5, 1),
+          onDaySelected: onDaySelected,
+          selectedDayPredicate: selectedDayPredicate,
+        ),
+        TodayBanner(selectedDay: selectedDay, taskCount: 0),
+        Expanded(
+            child: Padding(
+          padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+          child: ListView(children: [
+            ScheduleCard(
+                startTime: DateTime(2024, 05, 09, 11),
+                endTime: DateTime(2024, 05, 15, 12),
+                content: '플러터 공부하기',
+                color: Colors.blue)
+          ]),
+        )),
+      ])),
     );
+  }
+
+  void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      this.selectedDay = selectedDay;
+    });
+  }
+
+  bool selectedDayPredicate(DateTime date) {
+    if (selectedDay == null) {
+      return false;
+    }
+    return date.isAtSameMomentAs(selectedDay!);
   }
 }
