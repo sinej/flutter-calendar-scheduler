@@ -11,6 +11,13 @@ class ScheduleBottomSheet extends StatefulWidget {
 }
 
 class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
+  final GlobalKey<FormState> formKey = GlobalKey();
+
+  int? startTime;
+  int? endTime;
+  String? content;
+  String? category;
+
   String selectedColor = categoryColors.first;
 
   @override
@@ -21,59 +28,177 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0),
-            child: Column(
-              children: [
-                _Time(),
-                SizedBox(height: 8.0),
-                _Contents(),
-                SizedBox(height: 8.0),
-                _Categories(
-                  selectedColor: selectedColor,
-                  onTap: (String color){
-                    setState(() {
-                      selectedColor = color;
-                    });
-                  },
-                ),
-                SizedBox(height: 8.0),
-                _SaveButton(),
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  _Time(
+                    onStartSaved: onStartTimeSaved,
+                    onStartValidation: onStartTimeValidate,
 
-              ],
+                    onEndSaved:onEndTimeSaved,
+                    onEndValidation: onEndTimeValidate,
+                  ),
+                  SizedBox(height: 8.0),
+                  _Contents(
+                    onSaved: onContentSaved,
+                    onValidation: onContentValidate,
+                  ),
+                  SizedBox(height: 8.0),
+                  _Categories(
+                    selectedColor: selectedColor,
+                    onTap: (String color) {
+                      setState(() {
+                        selectedColor = color;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 8.0),
+                  _SaveButton(
+                      onPressed: onSavePressed
+                  ),
+                ],
+              ),
             ),
           ),
         ));
   }
+  void onStartTimeSaved(String? val) {
+    if(val == null) {
+      return;
+    }
+    startTime = int.parse(val);
+  }
+  String? onStartTimeValidate(String? val) {
+    if(val == null) {
+      return '값을 입력 해주세요!';
+    };
+    if(int.tryParse(val) == null) {
+      return '숫자를 입력해주세요!';
+    };
+    final time = int.parse(val);
+
+    if(time >  24 || time < 0) {
+      return '0과 24 사이의 숫자를 입력해주세요.';
+    }
+    return null;
+  }
+
+  void onEndTimeSaved(String? val) {
+    if(val == null) {
+      return;
+    }
+
+    endTime = int.parse(val);
+  }
+
+  String? onEndTimeValidate(String? val) {
+    if(val == null) {
+      return '값을 입력 해주세요!';
+    };
+    if(int.tryParse(val) == null) {
+      return '숫자를 입력해주세요!';
+    };
+
+    final time = int.parse(val);
+
+    if(time >  24 || time < 0) {
+      return '0과 24 사이의 숫자를 입력해주세요.';
+    }
+    return null;
+  }
+  void onContentSaved(String? val) {
+    if(val == null) {
+      return;
+    }
+    content = val;
+  }
+  String? onContentValidate(String? val) {
+    if(val == null) {
+      return '값을 입력 해주세요!';
+    };
+    if(int.tryParse(val) == null) {
+      return '내용을 입력해주세요!';
+    };
+    final text = int.parse(val);
+
+    if(text < 5) {
+      return '0과 24 사이의 숫자를 입력해주세요.';
+    }
+    return null;
+
+  }
+
+  void onSavePressed () {
+   final isValid =  formKey.currentState!.validate();
+
+   if(!isValid) return;
+   if(isValid) formKey.currentState!.save();
+  }
 }
 
 class _Time extends StatelessWidget {
-  const _Time({super.key});
+  final FormFieldSetter<String> onStartSaved;
+  final FormFieldSetter<String> onEndSaved;
+  final FormFieldValidator<String> onStartValidation;
+  final FormFieldValidator<String> onEndValidation;
+
+
+  const _Time({
+    required this.onStartSaved,
+    required this.onEndSaved,
+    required this.onStartValidation,
+    required this.onEndValidation,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-            child: CustomTextField(
+        Row(
+          children: [
+            Expanded(
+                child: CustomTextField(
               label: '시작시간',
+              onSaved: onStartSaved,
+              validator: onStartValidation,
             )),
-        SizedBox(width: 16.0),
-        Expanded(
-            child: CustomTextField(
+            SizedBox(width: 16.0),
+            Expanded(
+                child: CustomTextField(
               label: '마감시간',
+              onSaved: onEndSaved,
+              validator: onEndValidation,
             )),
+          ],
+        ),
       ],
     );
   }
 }
 
 class _Contents extends StatelessWidget {
-  const _Contents({super.key});
+
+  final FormFieldSetter<String> onSaved;
+  final FormFieldValidator<String> onValidation;
+
+
+  const _Contents({
+    required this.onSaved,
+    required this.onValidation,
+    super.key,
+  });
+
+
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: CustomTextField(
         label: '내용',
+        onSaved: onSaved,
+        validator: onValidation,
         expand: true,
       ),
     );
@@ -86,11 +211,8 @@ class _Categories extends StatelessWidget {
   final String selectedColor;
   final OnColorSelected onTap;
 
-  const _Categories({
-    required this.selectedColor,
-    required this.onTap,
-    super.key
-  });
+  const _Categories(
+      {required this.selectedColor, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -98,44 +220,51 @@ class _Categories extends StatelessWidget {
       children: categoryColors
           .map(
             (e) => Padding(
-          padding: EdgeInsets.only(right: 8.0),
-          child: GestureDetector(
-            onTap: (){
-              onTap(e);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(int.parse(
-                  'FF$e',
-                  radix: 16,
-                )),
-                shape: BoxShape.circle,
-                border: e == selectedColor ? Border.all(
-                  color: Colors.black,
-                  width: 4.0,
-                ) : null,
+              padding: EdgeInsets.only(right: 8.0),
+              child: GestureDetector(
+                onTap: () {
+                  onTap(e);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Color(int.parse(
+                      'FF$e',
+                      radix: 16,
+                    )),
+                    shape: BoxShape.circle,
+                    border: e == selectedColor
+                        ? Border.all(
+                            color: Colors.black,
+                            width: 4.0,
+                          )
+                        : null,
+                  ),
+                  width: 32.0,
+                  height: 32.0,
+                ),
               ),
-              width: 32.0,
-              height: 32.0,
             ),
-          ),
-        ),
-      )
+          )
           .toList(),
     );
   }
 }
 
 class _SaveButton extends StatelessWidget {
-  const _SaveButton({super.key});
+  final VoidCallback onPressed;
+
+  const _SaveButton({
+    required this.onPressed,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
-    return  Row(
+    return Row(
       children: [
         Expanded(
           child: ElevatedButton(
-              onPressed: () {},
+              onPressed: onPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
@@ -146,4 +275,3 @@ class _SaveButton extends StatelessWidget {
     );
   }
 }
-

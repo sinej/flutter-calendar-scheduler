@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:calendar/const/color.dart';
 
 class ScheduleCard extends StatelessWidget {
-  final DateTime startTime;
-  final DateTime endTime;
+  final int startTime;
+  final int endTime;
   final String content;
   final Color color;
 
@@ -39,13 +39,13 @@ class ScheduleCard extends StatelessWidget {
 
                   /// 1 -> 01
                   /// 10 -> 10 2자리 숫자가 아닐 때 왼쪽으로 0을 채운다.
-                  Text('${startTime.hour.toString().padLeft(2, '0')}:00', style: TextStyle(
+                  Text('${startTime.toString().padLeft(2, '0')}:00', style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: primaryColor,
                     fontSize: 16.0,
                   ),
                   ),
-                  Text('${endTime.hour.toString().padLeft(2, '0')}:00', style: TextStyle(
+                  Text('${endTime.toString().padLeft(2, '0')}:00', style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: primaryColor,
                     fontSize: 16.0
