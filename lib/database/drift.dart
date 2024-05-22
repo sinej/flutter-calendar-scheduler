@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:calendar/model/category.dart';
+import 'package:calendar/model/schedule_with_category.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 
@@ -10,7 +12,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'drift.g.dart';
 
-@DriftDatabase(tables: [ScheduleTable])
+@DriftDatabase(tables: [ScheduleTable, CategoryTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -25,20 +27,36 @@ class AppDatabase extends _$AppDatabase {
   ) =>
       (select(scheduleTable)..where((table) => table.date.equals(date))).get();
 
-  Stream<List<ScheduleTableData>> streamSchedules(
+  Stream<List<ScheduleWithCategory>> streamSchedules(
     DateTime date,
-  ) =>
-      (select(scheduleTable)
-            ..where(
-              (table) => table.date.equals(date),
-            )
-            ..orderBy([
-              (table) => OrderingTerm(
-                  expression: table.startTime, mode: OrderingMode.asc),
-              (table) => OrderingTerm(
-                  expression: table.endTime, mode: OrderingMode.asc),
-            ]))
-          .watch();
+  ) {
+    final query = select(scheduleTable).join(
+      [
+        innerJoin(
+          categoryTable,
+          categoryTable.id.equalsExp(scheduleTable.colorId)
+        )
+      ]
+    )..where(scheduleTable.date.equals(date));
+
+    return query.map((row) {
+      final schedule = row.readTable(scheduleTable);
+      final category = row.readTable(categoryTable);
+
+      return ScheduleWithCategory(category: category, schedule: schedule);
+    }).watch();
+    // (select(scheduleTable)
+    //   ..where(
+    //         (table) => table.date.equals(date),
+    //   )
+    //   ..orderBy([
+    //         (table) => OrderingTerm(
+    //         expression: table.startTime, mode: OrderingMode.asc),
+    //         (table) => OrderingTerm(
+    //         expression: table.endTime, mode: OrderingMode.asc),
+    //   ]))
+    //     .watch();
+  }
 
   /// 스케줄 추가
   Future<int> createSchedule(ScheduleTableCompanion data) =>

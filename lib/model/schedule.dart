@@ -1,3 +1,4 @@
+import 'package:calendar/model/category.dart';
 import 'package:drift/drift.dart';
 
 class ScheduleTable extends Table{
@@ -14,8 +15,9 @@ class ScheduleTable extends Table{
 
   /// 날짜
   DateTimeColumn get date => dateTime()();
+
   /// 카테고리
-  TextColumn get color => text()();
+  IntColumn get colorId => integer().references(CategoryTable, #id)();
 
   /// 일정 생성날짜시간
   DateTimeColumn get createdAt => dateTime().clientDefault(() => DateTime.now().toUtc(), )();
