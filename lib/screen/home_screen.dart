@@ -25,49 +25,75 @@ class _HomeScreenState extends State<HomeScreen> {
   /// 2024-05-20:[Schedule, Schedule],
   /// 2023-05-21:[Schedule, Schedule],
   /// }
-  Map<DateTime, List<Schedule>> schedules = {
-    DateTime.utc(2024, 5, 8): [
-      Schedule(
-        id: 1,
-        startTime: 11,
-        endTime: 11,
-        content: '플러터 공부하기',
-        date: DateTime.utc(2024, 5, 8),
-        color: categoryColors[0],
-        createdAt: DateTime.now().toUtc(),
-      ),
-      Schedule(
-        id: 2,
-        startTime: 14,
-        endTime: 16,
-        content: '플러터 공부하기 - 1',
-        date: DateTime.utc(2024, 5, 8),
-        color: categoryColors[3],
-        createdAt: DateTime.now().toUtc(),
-      ),
-      Schedule(
-        id: 3,
-        startTime: 18,
-        endTime: 22,
-        content: '플러터 공부하기 - 2',
-        date: DateTime.utc(2024, 5, 8),
-        color: categoryColors[1],
-        createdAt: DateTime.now().toUtc(),
-      ),
-    ]
-  };
+  // Map<DateTime, List<ScheduleTable>> schedules = {
+  //   DateTime.utc(2024, 5, 8): [
+  //     ScheduleTable(
+  //       id: 1,
+  //       startTime: 11,
+  //       endTime: 11,
+  //       content: '플러터 공부하기',
+  //       date: DateTime.utc(2024, 5, 8),
+  //       color: categoryColors[0],
+  //       createdAt: DateTime.now().toUtc(),
+  //     ),
+  //     ScheduleTable(
+  //       id: 2,
+  //       startTime: 14,
+  //       endTime: 16,
+  //       content: '플러터 공부하기 - 1',
+  //       date: DateTime.utc(2024, 5, 8),
+  //       color: categoryColors[3],
+  //       createdAt: DateTime.now().toUtc(),
+  //     ),
+  //     ScheduleTable(
+  //       id: 3,
+  //       startTime: 18,
+  //       endTime: 22,
+  //       content: '플러터 공부하기 - 2',
+  //       date: DateTime.utc(2024, 5, 8),
+  //       color: categoryColors[1],
+  //       createdAt: DateTime.now().toUtc(),
+  //     ),
+  //   ]
+  // };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (_) {
-              return ScheduleBottomSheet();
-            },
-          );
+        onPressed: () async {
+          final schedule = await showModalBottomSheet<ScheduleTable>(
+              context: context,
+              builder: (_) {
+                return ScheduleBottomSheet(
+                  selectedDay: selectedDay,
+                );
+              });
+
+          if (schedule == null) return;
+
+          // final dateExists = schedules.containsKey(schedule.date);
+          // final List<ScheduleTable> existingSchedules =
+          //     dateExists ? schedules[schedule.date]! : [];
+
+          // existingSchedules!.add(schedule);
+
+          // setState(() {
+          //   schedules = {
+          //     ...schedules,
+          //     schedule.date: existingSchedules,
+          //   };
+          // });
+
+          // setState(() {
+          //   schedules = {
+          //     ...schedules,
+          //     schedule.date: [
+          //       if(schedules.containsKey(schedule.date))
+          //         ...schedules[schedule.date]!, schedule,
+          //     ]
+          //   };
+          // });
         },
         backgroundColor: primaryColor,
         child: Icon(
@@ -87,19 +113,17 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Padding(
               padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
               child: ListView.separated(
-                itemCount: schedules.containsKey(selectedDay)
-                    ? schedules[selectedDay]!.length
-                    : 0,
+                itemCount: 0,
                 itemBuilder: (BuildContext context, int index) {
-                  final selectedSchedules = schedules[selectedDay]!;
-                  final schedulModel = selectedSchedules[index];
+                  // final selectedSchedules = schedules[selectedDay]!;
+                  // final schedulModel = selectedSchedules[index];
 
                   return ScheduleCard(
-                    startTime: schedulModel.startTime,
-                    endTime: schedulModel.endTime,
-                    content: schedulModel.content,
-                    color:
-                        Color(int.parse('FF${schedulModel.color}', radix: 16)),
+                    startTime: 12, // schedulModel.startTime,
+                    endTime: 12, // schedulModel.endTime,
+                    content: 'test', // schedulModel.content,
+                    color: Color(int.parse('FF000000', radix: 16)),
+                        // Color(int.parse('FF${schedulModel.color}', radix: 16)),
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {

@@ -1,10 +1,15 @@
+import 'package:calendar/model/schedule.dart';
 import 'package:flutter/material.dart';
 
 import '../const/color.dart';
 import 'custom_text_field.dart';
 
 class ScheduleBottomSheet extends StatefulWidget {
-  const ScheduleBottomSheet({super.key});
+  final DateTime selectedDay;
+  const ScheduleBottomSheet({
+    required this.selectedDay,
+    super.key
+  });
 
   @override
   State<ScheduleBottomSheet> createState() => _ScheduleBottomSheetState();
@@ -35,8 +40,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                   _Time(
                     onStartSaved: onStartTimeSaved,
                     onStartValidation: onStartTimeValidate,
-
-                    onEndSaved:onEndTimeSaved,
+                    onEndSaved: onEndTimeSaved,
                     onEndValidation: onEndTimeValidate,
                   ),
                   SizedBox(height: 8.0),
@@ -54,38 +58,40 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                     },
                   ),
                   SizedBox(height: 8.0),
-                  _SaveButton(
-                      onPressed: onSavePressed
-                  ),
+                  _SaveButton(onPressed: onSavePressed),
                 ],
               ),
             ),
           ),
         ));
   }
+
   void onStartTimeSaved(String? val) {
-    if(val == null) {
+    if (val == null) {
       return;
     }
     startTime = int.parse(val);
   }
+
   String? onStartTimeValidate(String? val) {
-    if(val == null) {
+    if (val == null) {
       return '값을 입력 해주세요!';
-    };
-    if(int.tryParse(val) == null) {
+    }
+    ;
+    if (int.tryParse(val) == null) {
       return '숫자를 입력해주세요!';
-    };
+    }
+    ;
     final time = int.parse(val);
 
-    if(time >  24 || time < 0) {
+    if (time > 24 || time < 0) {
       return '0과 24 사이의 숫자를 입력해주세요.';
     }
     return null;
   }
 
   void onEndTimeSaved(String? val) {
-    if(val == null) {
+    if (val == null) {
       return;
     }
 
@@ -93,47 +99,60 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   }
 
   String? onEndTimeValidate(String? val) {
-    if(val == null) {
+    if (val == null) {
       return '값을 입력 해주세요!';
-    };
-    if(int.tryParse(val) == null) {
+    }
+    ;
+    if (int.tryParse(val) == null) {
       return '숫자를 입력해주세요!';
-    };
+    }
+    ;
 
     final time = int.parse(val);
 
-    if(time >  24 || time < 0) {
+    if (time > 24 || time < 0) {
       return '0과 24 사이의 숫자를 입력해주세요.';
     }
     return null;
   }
+
   void onContentSaved(String? val) {
-    if(val == null) {
+    if (val == null) {
       return;
     }
     content = val;
   }
+
   String? onContentValidate(String? val) {
-    if(val == null) {
+    if (val == null) {
       return '값을 입력 해주세요!';
     };
-    if(int.tryParse(val) == null) {
+    if (val == null) {
       return '내용을 입력해주세요!';
     };
-    final text = int.parse(val);
 
-    if(text < 5) {
-      return '0과 24 사이의 숫자를 입력해주세요.';
-    }
     return null;
-
   }
 
-  void onSavePressed () {
-   final isValid =  formKey.currentState!.validate();
+  void onSavePressed() {
+    final isValid = formKey.currentState!.validate();
 
-   if(!isValid) return;
-   if(isValid) formKey.currentState!.save();
+    if (!isValid) return;
+    if (isValid) formKey.currentState!.save();
+
+    // final schedule = ScheduleTable(
+    //   id: 999,
+    //   startTime: startTime!,
+    //   endTime: endTime!,
+    //   content: content!,
+    //   color: selectedColor,
+    //   date: widget.selectedDay,
+    //   createdAt: DateTime.now().toUtc(),
+    // );
+
+    // Navigator.of(context).pop(
+    //   schedule,
+    // );
   }
 }
 
@@ -142,7 +161,6 @@ class _Time extends StatelessWidget {
   final FormFieldSetter<String> onEndSaved;
   final FormFieldValidator<String> onStartValidation;
   final FormFieldValidator<String> onEndValidation;
-
 
   const _Time({
     required this.onStartSaved,
@@ -179,18 +197,14 @@ class _Time extends StatelessWidget {
 }
 
 class _Contents extends StatelessWidget {
-
   final FormFieldSetter<String> onSaved;
   final FormFieldValidator<String> onValidation;
-
 
   const _Contents({
     required this.onSaved,
     required this.onValidation,
     super.key,
   });
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -253,10 +267,7 @@ class _Categories extends StatelessWidget {
 class _SaveButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const _SaveButton({
-    required this.onPressed,
-    super.key
-  });
+  const _SaveButton({required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
